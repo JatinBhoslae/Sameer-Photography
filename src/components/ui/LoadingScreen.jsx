@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useProgress } from '@react-three/drei';
 import gsap from 'gsap';
 
-const LoadingScreen = ({ started, onStarted }) => {
+const LoadingScreen = ({ onStarted }) => {
   const { progress } = useProgress();
   const [showButton, setShowButton] = useState(false);
 
@@ -39,13 +39,13 @@ const LoadingScreen = ({ started, onStarted }) => {
         <div className="shutter-blade bg-dark-accent w-full h-1/2 border-t border-gold/20"></div>
       </div>
 
-      <div className="relative z-10 flex flex-col items-center">
-        <div className="text-gold font-serif text-3xl mb-4 tracking-widest uppercase">
+      <div className="relative z-10 flex flex-col items-center px-4">
+        <div className="text-gold font-serif text-2xl sm:text-3xl md:text-4xl mb-4 tracking-widest uppercase text-center">
             Sameer Photography
         </div>
         
         {!showButton ? (
-            <div className="w-48 h-1 bg-gray-800 rounded overflow-hidden">
+            <div className="w-48 sm:w-64 h-1 bg-gray-800 rounded overflow-hidden">
                 <div 
                     className="h-full bg-gold transition-all duration-300 ease-out"
                     style={{ width: `${progress}%` }}
@@ -54,13 +54,13 @@ const LoadingScreen = ({ started, onStarted }) => {
         ) : (
             <button 
                 onClick={handleStart}
-                className="px-8 py-3 border border-gold text-gold hover:bg-gold hover:text-dark transition-all duration-300 uppercase tracking-widest text-sm"
+                className="px-6 sm:px-8 py-3 border border-gold text-gold hover:bg-gold hover:text-dark transition-all duration-300 uppercase tracking-widest text-xs sm:text-sm cursor-pointer"
             >
                 Enter Gallery
             </button>
         )}
         
-        <div className="mt-4 text-gray-500 text-xs tracking-widest">
+        <div className="mt-4 text-gray-500 text-xs sm:text-sm tracking-widest">
             {progress.toFixed(0)}% LOADED
         </div>
       </div>

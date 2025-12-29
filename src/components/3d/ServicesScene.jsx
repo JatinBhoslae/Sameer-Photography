@@ -1,13 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Text, RoundedBox } from "@react-three/drei";
 import * as THREE from "three";
 
-const ServiceCard = ({ position, title, icon, description }) => {
+const ServiceCard = ({ position, title, description }) => {
   const ref = useRef();
   const [hovered, setHover] = useState(false);
 
-  useFrame((state, delta) => {
+  useFrame(() => {
     const targetRotation = hovered ? Math.PI : 0;
     ref.current.rotation.y = THREE.MathUtils.lerp(
       ref.current.rotation.y,
@@ -86,8 +86,6 @@ const ServiceCard = ({ position, title, icon, description }) => {
     </group>
   );
 };
-
-import { useRef } from "react";
 
 const ServicesScene = () => {
   return (

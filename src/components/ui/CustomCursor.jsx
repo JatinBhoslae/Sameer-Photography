@@ -5,8 +5,11 @@ const CustomCursor = () => {
   const cursorRef = useRef(null);
   const followerRef = useRef(null);
   const [hovered, setHovered] = useState(false);
+  const [isTouchDevice] = useState(() => ('ontouchstart' in window || navigator.maxTouchPoints > 0));
 
   useEffect(() => {
+    if (isTouchDevice) return; // Don't run on touch devices
+
     const moveCursor = (e) => {
       gsap.to(cursorRef.current, {
         x: e.clientX,
@@ -54,7 +57,10 @@ const CustomCursor = () => {
         el.removeEventListener('mouseleave', handleHoverEnd);
       });
     };
-  }, []);
+  }, [isTouchDevice]);
+
+  // Don't render on touch devices
+  if (isTouchDevice) return null;
 
   return (
     <>

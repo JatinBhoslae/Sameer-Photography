@@ -1,4 +1,4 @@
-import React, { useState, Suspense } from "react";
+import React, { useState, Suspense, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { ScrollControls, Scroll } from "@react-three/drei";
 import Scene from "./components/3d/Experience";
@@ -8,6 +8,18 @@ import CustomCursor from "./components/ui/CustomCursor";
 
 function App() {
   const [started, setStarted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+      setIsTablet(window.innerWidth < 1024);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   return (
     <>
@@ -23,11 +35,14 @@ function App() {
       >
         <Canvas
           shadows
-          camera={{ position: [0, 0, 5], fov: 50 }}
+          camera={{
+            position: isMobile ? [0, 0, 8] : [0, 0, 5],
+            fov: isMobile ? 60 : 50,
+          }}
           dpr={[1, 2]} // Optimization for high DPI screens
         >
           <Suspense fallback={null}>
-            <ScrollControls pages={6} damping={0.3}>
+            <ScrollControls pages={isTablet ? 9 : 7} damping={0.3}>
               <Scene />
               <Scroll
                 html

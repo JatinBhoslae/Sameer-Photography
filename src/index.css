@@ -17,6 +17,24 @@ body {
   color: #ffffff;
   overflow-x: hidden;
   cursor: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+}
+
+/* Mobile-specific fixes */
+@media screen and (max-width: 768px) {
+  body {
+    font-size: 16px; /* Prevents iOS zoom on focus */
+  }
+}
+
+/* Hide custom cursor on touch devices */
+@media (hover: none) and (pointer: coarse) {
+  body {
+    cursor: auto !important;
+  }
 }
 
 .canvas-container {
@@ -36,9 +54,78 @@ body {
   width: 100vw;
   height: 100vh;
   z-index: 0;
+  touch-action: pan-y;
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+
+/* Prevent mobile scroll issues */
+html {
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  height: 100%;
+  height: -webkit-fill-available;
+}
+
+/* Mobile viewport height fix */
+@supports (-webkit-touch-callout: none) {
+  html {
+    height: -webkit-fill-available;
+  }
+}
+
+/* Prevent scrolling beyond footer */
+html,
+body {
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
+  overscroll-behavior-x: none;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+}
+
+/* Improve mobile touch experience */
+button,
+a {
+  -webkit-tap-highlight-color: rgba(212, 175, 55, 0.3);
+  touch-action: manipulation; /* Disable double-tap zoom */
+}
+
+/* Mobile input focus improvements */
+input,
+textarea {
+  font-size: 16px; /* Prevent iOS zoom on focus */
+  -webkit-appearance: none;
+  border-radius: 0;
 }
 
 .content-container {
   position: relative;
   z-index: 10;
+}
+
+/* Safe area top padding to avoid cut off on tablets/notched devices */
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.hero-pad {
+  padding-top: calc(env(safe-area-inset-top, 0px) + 4rem);
+}
+
+@media (min-width: 640px) and (max-width: 1024px) {
+  .tablet-hero-pad {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 10rem);
+  }
+}
+
+/* Extra padding bump for medium tablets */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .tablet-hero-pad {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 18rem);
+  }
 }

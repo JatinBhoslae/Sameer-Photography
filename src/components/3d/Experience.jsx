@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import {
   useScroll,
   Scroll,
@@ -17,19 +17,17 @@ import Overlay from "../ui/Overlay";
 
 const Scene = () => {
   const scroll = useScroll();
-  const { height } = useThree((state) => state.viewport);
+  const { width } = useThree((state) => state.viewport);
+  const isMobile = width < 5; // Viewport units for mobile detection
+  const isSmallMobile = width < 3.5; // Extra small screens (<375px)
+  const isTablet = width >= 5 && width < 8; // Approx tablet viewport units
 
-  useFrame((state, delta) => {
+  useFrame((state) => {
     // Smooth camera movement based on scroll
-    // The scroll.offset is between 0 and 1
-    // We want to move the camera down along the Y axis
+    // 7 pages total (Hero, Portfolio, About, Packages, Testimonials, Contact, Footer)
+    // Total distance = 49 units (7 sections × 7 units spacing)
 
-    // Total scrollable height in 3D units roughly corresponds to pages * viewport height
-    // But we are manually positioning sections.
-    // Let's say each section is 10 units apart.
-    // Total distance = 50 units (for 6 sections starting at 0 to -50)
-
-    const targetY = -scroll.offset * 50;
+    const targetY = -scroll.offset * 49;
 
     // Smoothly interpolate camera position
     state.camera.position.y = THREE.MathUtils.lerp(
@@ -37,8 +35,6 @@ const Scene = () => {
       targetY,
       0.05
     );
-
-    // Look a bit down or up depending on scroll speed (optional polish)
   });
 
   return (
@@ -65,51 +61,79 @@ const Scene = () => {
         color="#D4AF37"
       />
 
-      {/* Hero Section - Position: 0 */}
+      {/* Hero Section - Position: 0 (Camera) */}
       <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
-        <CameraModel position={[0, 0, 0]} scale={0.8} />
+        <CameraModel
+          position={
+            isSmallMobile
+              ? [0, -0.25, 0]
+              : isMobile
+              ? [0, -0.2, 0]
+              : isTablet
+              ? [0, -0.15, 0]
+              : [0, 0, 0]
+          }
+          scale={isSmallMobile ? 0.5 : isMobile ? 0.6 : 0.8}
+        />
       </Float>
 
-      {/* Portfolio Section - Position: -10 */}
-      <group position={[0, -10, 0]}>
+      {/* Portfolio Section - Position: -8 (Gallery) */}
+      <group position={[0, -8, 0]}>
         <PortfolioGallery />
       </group>
 
-      {/* About Section - Position: -20 */}
-      <group position={[3, -20, 0]} rotation={[0, -0.5, 0]}>
+      {/* About Section - Position: -16 (Cylinder/Film Roll) */}
+      <group
+        position={[isMobile ? 0 : 3, -16, 0]}
+        rotation={[0, -0.5, 0]}
+        scale={isSmallMobile ? 0.6 : isMobile ? 0.7 : 0.9}
+      >
         <AboutScene />
       </group>
 
-      {/* Services Section - Position: -30 */}
-      {/* Removed 3D ServicesScene to avoid conflict with Overlay pricing table */}
-      {/* <group position={[0, -30, 0]}>
-        <ServicesScene />
-      </group> */}
-      
-      {/* Testimonials - Position: -40 */}
-      <group position={[0, -40, 0]}>
-        {/* Simple visual for testimonials */}
-         <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.5}>
-            <mesh rotation={[0.5, 0.5, 0]}>
-                <torusGeometry args={[2, 0.05, 16, 100]} />
-                <meshStandardMaterial color="#D4AF37" emissive="#D4AF37" emissiveIntensity={0.5} />
-            </mesh>
-         </Float>
+      {/* Packages Section - Position: -24 (No 3D model - UI only) */}
+
+      {/* Testimonials Section - Position: -32 (Single Ring/Torus - MUST BE VISIBLE) */}
+      <group position={[0, -32, 0]}>
+        <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.5}>
+          <mesh rotation={[0.5, 0.5, 0]}>
+            <torusGeometry
+              args={
+                isSmallMobile
+                  ? [1.5, 0.05, 16, 100]
+                  : isMobile
+                  ? [1.8, 0.05, 16, 100]
+                  : [2, 0.05, 16, 100]
+              }
+            />
+            <meshStandardMaterial
+              color="#D4AF37"
+              emissive="#D4AF37"
+              emissiveIntensity={0.5}
+            />
+          </mesh>
+        </Float>
       </group>
 
-      {/* Contact Section - Position: -50 */}
-      <group position={[-3, -50, 0]}>
-         <Float speed={1} rotationIntensity={1} floatIntensity={1}>
+      {/* Contact Section - Position: -40 (3D Cube/Icosahedron - MUST BE VISIBLE) */}
+      <group position={[isMobile ? -2 : -4, -40, 0]}>
+        <Float speed={1} rotationIntensity={1} floatIntensity={1}>
           <mesh>
-            <icosahedronGeometry args={[1.5, 0]} />
+            <icosahedronGeometry
+              args={isSmallMobile ? [1.3, 0] : isMobile ? [1.4, 0] : [1.5, 0]}
+            />
             <meshStandardMaterial color="#111" wireframe />
           </mesh>
           <mesh>
-            <icosahedronGeometry args={[1.4, 0]} />
+            <icosahedronGeometry
+              args={isSmallMobile ? [1.2, 0] : isMobile ? [1.3, 0] : [1.4, 0]}
+            />
             <meshStandardMaterial color="#D4AF37" transparent opacity={0.1} />
           </mesh>
         </Float>
       </group>
+
+      {/* Footer Section - Position: -48 to -56 (No 3D model - extra space for visibility) */}
     </>
   );
 };
