@@ -29,15 +29,6 @@ const Frame = ({ url, index, imageScale, ...props }) => {
     const t = state.clock.elapsedTime;
     ref.current.position.y = Math.sin(t * 0.5 + index) * 0.03;
     ref.current.rotation.y = Math.sin(t * 0.2 + index) * 0.04;
-
-    // Grayscale to color on hover
-    if (imageRef.current.material) {
-      imageRef.current.material.grayscale = THREE.MathUtils.lerp(
-        imageRef.current.material.grayscale || 1,
-        hovered ? 0 : 0.7,
-        0.1
-      );
-    }
   });
 
   return (
@@ -145,8 +136,13 @@ const PortfolioGallery = () => {
 
     // Normal scroll-based progress when not locked
     // Page 0: Hero, Page 1: Portfolio, Pages 2+: Rest
-    const sectionStart = 1 / 7; // Start of portfolio section (7 pages total)
-    const sectionEnd = 2 / 7; // End of portfolio section
+    // Compute total pages dynamically to support mobile/tablet different heights
+    const pagesCount =
+      scroll.el && window.innerHeight
+        ? Math.max(1, scroll.el.scrollHeight / window.innerHeight)
+        : 7;
+    const sectionStart = 1 / pagesCount; // Start of portfolio section
+    const sectionEnd = 2 / pagesCount; // End of portfolio section
     const currentScroll = scroll.offset;
 
     // Calculate progress

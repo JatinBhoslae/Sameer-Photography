@@ -24,9 +24,6 @@ const Scene = () => {
 
   useFrame((state) => {
     // Smooth camera movement based on scroll
-    // 7 pages total (Hero, Portfolio, About, Packages, Testimonials, Contact, Footer)
-    // Total distance = 49 units (7 sections × 7 units spacing)
-
     const targetY = -scroll.offset * 49;
 
     // Smoothly interpolate camera position

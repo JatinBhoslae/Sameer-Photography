@@ -17,7 +17,7 @@ import {
 const Section = ({ children, className = "" }) => {
   return (
     <section
-      className={`h-[100svh] min-h-[100svh] w-screen flex flex-col justify-center items-center px-4 sm:px-8 md:px-10 py-8 ${className}`}
+      className={`h-[100svh] min-h-[100svh] w-screen flex flex-col justify-center items-center px-4 sm:px-8 md:px-10 xl:px-16 2xl:px-24 py-8 ${className}`}
     >
       {children}
     </section>
@@ -133,8 +133,25 @@ const Overlay = () => {
   const [isPortfolioLocked, setIsPortfolioLocked] = useState(false);
   const [portfolioProgress, setPortfolioProgress] = useState(0);
   const lockSnapCompleteRef = useRef(false);
+  const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
+    const check = () => setIsDesktop(window.innerWidth >= 1024);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  useEffect(() => {
+    if (!isDesktop) {
+      setIsPortfolioLocked(false);
+      lockSnapCompleteRef.current = false;
+      setPortfolioProgress(0);
+    }
+  }, [isDesktop]);
+
+  useEffect(() => {
+    if (!isDesktop) return;
     const handleWheel = (e) => {
       if (!isPortfolioLocked) return;
 
@@ -190,9 +207,10 @@ const Overlay = () => {
         scrollEl.removeEventListener("wheel", handleWheel);
       }
     };
-  }, [isPortfolioLocked, scroll]);
+  }, [isPortfolioLocked, scroll, isDesktop]);
 
   useEffect(() => {
+    if (!isDesktop) return;
     // Check if we've reached the portfolio section
     const checkScroll = () => {
       const scrollTop = scroll.el?.scrollTop || 0;
@@ -244,20 +262,20 @@ const Overlay = () => {
         scrollEl.removeEventListener("scroll", checkScroll);
       }
     };
-  }, [scroll, isPortfolioLocked]);
+  }, [scroll, isPortfolioLocked, isDesktop]);
 
   return (
     <div className="absolute top-0 left-0 w-full pointer-events-none z-50 text-white">
       {/* Hero Section */}
       <Section className="items-center lg:items-start lg:pl-10 px-4 sm:px-6 md:px-8 safe-top hero-pad tablet-hero-pad">
-        <div className="flex flex-col lg:flex-row items-center justify-center lg:justify-between w-full max-w-7xl gap-6 sm:gap-8 lg:gap-4">
+        <div className="flex flex-col lg:flex-row items-center justify-center lg:justify-between w-full max-w-[90rem] gap-6 sm:gap-8 lg:gap-4">
           {/* Text Content - Order 1 on all screens */}
           <div className="flex-1 text-center lg:text-left order-1">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl font-serif text-white mb-3 md:mb-4 tracking-tighter px-4 sm:px-0">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-serif text-white mb-3 md:mb-4 tracking-tighter px-4 sm:px-0">
               Sameer <br />
               <span className="text-gold italic">Photography</span>
             </h1>
-            <p className="text-base sm:text-lg md:text-xl lg:text-xl text-gray-300 font-light max-w-lg mb-6 md:mb-8 mx-auto lg:mx-0 px-4 sm:px-0">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-2xl 2xl:text-3xl text-gray-300 font-light max-w-4xl mb-6 md:mb-8 mx-auto lg:mx-0 px-4 sm:px-0">
               Turning moments into stories.
             </p>
             <button
@@ -274,13 +292,13 @@ const Overlay = () => {
           </div>
 
           {/* 3D Camera Window - Order 2 (middle in row, middle in column) */}
-          <div className="w-48 h-48 sm:w-64 sm:h-64 md:w-72 md:h-72 lg:w-80 lg:h-80 xl:w-96 xl:h-96 relative flex-shrink-0 order-2 pointer-events-none">
+          <div className="w-48 h-48 sm:w-64 sm:h-64 md:w-72 md:h-72 lg:w-80 lg:h-80 xl:w-96 xl:h-96 2xl:w-[28rem] 2xl:h-[28rem] relative flex-shrink-0 order-2 pointer-events-none">
             {/* This is a transparent window for the 3D camera to show through */}
             <div className="w-full h-full"></div>
           </div>
 
           {/* Sameer Photo - Order 3 on all screens (right in row, bottom in column) */}
-          <div className="w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56 lg:w-64 lg:h-80 xl:w-80 xl:h-96 relative flex-shrink-0 order-3">
+          <div className="w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56 lg:w-64 lg:h-80 xl:w-80 xl:h-96 2xl:w-[26rem] 2xl:h-[32rem] relative flex-shrink-0 order-3">
             <div className="absolute inset-0 border border-gold/30 rounded-full translate-x-2 translate-y-2 sm:translate-x-3 sm:translate-y-3 lg:translate-x-4 lg:translate-y-4"></div>
             <div className="absolute inset-0 rounded-full overflow-hidden border border-gray-800 grayscale hover:grayscale-0 transition-all duration-700 ease-in-out">
               <img
@@ -304,8 +322,8 @@ const Overlay = () => {
             Weddings, portraits, and stories told through the lens.
           </p>
         </div>
-        {/* Pass locked portfolio progress to 3D scene via custom event */}
-        {isPortfolioLocked && (
+        {/* Pass locked portfolio progress to 3D scene via custom event (desktop only) */}
+        {isDesktop && isPortfolioLocked && (
           <div
             className="hidden"
             data-portfolio-progress={portfolioProgress}

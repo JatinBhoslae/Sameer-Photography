@@ -1,10 +1,12 @@
-import React, { useState, Suspense, useEffect } from "react";
+import React, { useState, Suspense, useEffect, lazy } from "react";
 import { Canvas } from "@react-three/fiber";
 import { ScrollControls, Scroll } from "@react-three/drei";
-import Scene from "./components/3d/Experience";
-import Overlay from "./components/ui/Overlay";
 import LoadingScreen from "./components/ui/LoadingScreen";
 import CustomCursor from "./components/ui/CustomCursor";
+
+// Lazy load heavy 3D components
+const Scene = lazy(() => import("./components/3d/Experience"));
+const Overlay = lazy(() => import("./components/ui/Overlay"));
 
 function App() {
   const [started, setStarted] = useState(false);
@@ -42,7 +44,10 @@ function App() {
           dpr={[1, 2]} // Optimization for high DPI screens
         >
           <Suspense fallback={null}>
-            <ScrollControls pages={isTablet ? 9 : 7} damping={0.3}>
+            <ScrollControls
+              pages={isMobile ? 9 : isTablet ? 8 : 7}
+              damping={0.3}
+            >
               <Scene />
               <Scroll
                 html
