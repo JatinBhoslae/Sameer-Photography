@@ -273,6 +273,17 @@ const Overlay = () => {
   }, [scroll]); // Only depend on scroll, NOT on isPortfolioLocked or isDesktop
 
   useEffect(() => {
+    const body = document.body;
+    if (!body) return;
+    body.style.touchAction = isPortfolioLocked ? "none" : "auto";
+    body.style.overscrollBehaviorY = isPortfolioLocked ? "contain" : "";
+    return () => {
+      body.style.touchAction = "";
+      body.style.overscrollBehaviorY = "";
+    };
+  }, [isPortfolioLocked]);
+
+  useEffect(() => {
     // Enable locking for both desktop and mobile
     // if (!isDesktop) return;
 

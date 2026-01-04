@@ -4,31 +4,47 @@ import { Image, useScroll, Html } from "@react-three/drei";
 import * as THREE from "three";
 
 const images = [
-  // Horizontal flow - images positioned along X axis
-  { url: "/portfolio/wedding-1.jpg" },
-  { url: "/portfolio/wedding-2.jpg" },
-  { url: "/portfolio/wedding-3.jpg" },
-  { url: "/portfolio/wedding-4.jpg" },
-  { url: "/portfolio/wedding-5.jpg" },
-  { url: "/portfolio/wedding-6.jpg" },
+  {
+    url: "/portfolio/wedding-1.jpg",
+    title: "Wedding",
+    route: "#gallery/wedding",
+  },
+  {
+    url: "/portfolio/wedding-2.jpg",
+    title: "Engagement",
+    route: "#gallery/engagement",
+  },
+  { url: "/portfolio/wedding-3.jpg", title: "Haldi", route: "#gallery/haldi" },
+  {
+    url: "/portfolio/wedding-4.jpg",
+    title: "Festival",
+    route: "#gallery/festival",
+  },
+  {
+    url: "/portfolio/wedding-5.jpg",
+    title: "Celebration",
+    route: "#gallery/celebration",
+  },
+  {
+    url: "/portfolio/wedding-6.jpg",
+    title: "Portrait",
+    route: "#gallery/portrait",
+  },
 ];
 
-const Frame = ({ url, index, imageScale, ...props }) => {
+const Frame = ({ url, index, imageScale, title, route, ...props }) => {
   const ref = useRef();
   const imageRef = useRef();
-  const [hovered, setHover] = useState(false);
+  // hover state removed for stable alignment
   const { width } = useThree((state) => state.viewport);
   const isMobile = width < 5;
 
   const scale = imageScale;
 
-  useFrame((state) => {
+  useFrame(() => {
     if (!ref.current || !imageRef.current) return;
-
-    // Subtle parallax wobble
-    const t = state.clock.elapsedTime;
-    ref.current.position.y = Math.sin(t * 0.5 + index) * 0.03;
-    ref.current.rotation.y = Math.sin(t * 0.2 + index) * 0.04;
+    ref.current.position.y = 0;
+    ref.current.rotation.y = 0;
   });
 
   return (
@@ -50,17 +66,34 @@ const Frame = ({ url, index, imageScale, ...props }) => {
         transparent
         onPointerOver={() => {
           if (!isMobile) {
-            setHover(true);
             document.body.style.cursor = "pointer";
           }
         }}
         onPointerOut={() => {
           if (!isMobile) {
-            setHover(false);
             document.body.style.cursor = "auto";
           }
         }}
       />
+
+      <Html
+        transform
+        distanceFactor={6}
+        position={[0, scale[1] / 2 + 0.05, 0.1]}
+        className="pointer-events-auto"
+      >
+        <div className="flex items-center gap-3 bg-dark-accent/80 border border-gold px-4 py-2 rounded backdrop-blur-sm">
+          <span className="text-gold text-xs uppercase tracking-widest">
+            {title}
+          </span>
+          <a
+            href={route}
+            className="px-3 py-1 border border-gold text-gold hover:bg-gold hover:text-dark transition-all uppercase tracking-widest text-[10px] cursor-pointer"
+          >
+            Explore
+          </a>
+        </div>
+      </Html>
     </group>
   );
 };
@@ -96,7 +129,7 @@ const SeeAllButton = ({ progressMapped }) => {
           className="px-6 py-3 bg-dark-accent border-2 border-gold text-gold hover:bg-gold hover:text-dark transition-all duration-300 uppercase tracking-widest text-xs font-bold cursor-pointer pointer-events-auto whitespace-nowrap"
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
-          onClick={() => window.open("#portfolio", "_self")}
+          onClick={() => (window.location.hash = "#gallery/wedding")}
           style={{
             fontFamily: "Inter, sans-serif",
             backdropFilter: "blur(10px)",
@@ -202,6 +235,8 @@ const PortfolioGallery = () => {
               key={i}
               url={img.url}
               index={i}
+              title={img.title}
+              route={img.route}
               imageScale={[imageWidth, imageHeight]}
               position={[x, 0, z]}
             />

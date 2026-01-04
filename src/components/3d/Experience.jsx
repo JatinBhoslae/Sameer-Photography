@@ -74,8 +74,8 @@ const Scene = () => {
         />
       </Float>
 
-      {/* Portfolio Section - Position: -7.5 (Gallery) - Moved down to avoid text overlap */}
-      <group position={[0, isMobile ? -7.5 : -8, 0]}>
+      {/* Portfolio Section - Position: -7.5 (Gallery) - Adjusted desktop to avoid bottom cut */}
+      <group position={[0, isMobile ? -7.5 : -8.2, 0]}>
         <PortfolioGallery isMobile={isMobile} />
       </group>
 
