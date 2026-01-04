@@ -141,8 +141,12 @@ const PortfolioGallery = () => {
       scroll.el && window.innerHeight
         ? Math.max(1, scroll.el.scrollHeight / window.innerHeight)
         : 7;
+
+    const isMobile = width < 5;
+    const sectionDuration = isMobile ? 2 : 1;
     const sectionStart = 1 / pagesCount; // Start of portfolio section
-    const sectionEnd = 2 / pagesCount; // End of portfolio section
+    const sectionEnd = (1 + sectionDuration) / pagesCount; // End of portfolio section
+
     const currentScroll = scroll.offset;
 
     // Calculate progress
@@ -161,14 +165,17 @@ const PortfolioGallery = () => {
 
   useFrame(() => {
     if (!ribbonGroupRef.current) return;
+
     const isMobile = width < 5;
     const isTablet = width >= 5 && width < 8;
-    const imageWidth = isMobile ? 1.6 : isTablet ? 1.7 : 1.9;
-    const spacing = imageWidth + 0.5;
+
+    // MATCHING CONSTANTS WITH RENDER LOGIC
+    const imageWidth = isMobile ? 2.8 : isTablet ? 1.7 : 1.9;
+    const spacing = imageWidth + (isMobile ? 0.3 : 0.5);
     const lastIndex = images.length - 1;
 
     // Starting slightly off-screen to the right, ending when last image centers
-    const startX = 12;
+    const startX = isMobile ? 6 : 12;
     const endX = -lastIndex * spacing;
     ribbonGroupRef.current.position.x = THREE.MathUtils.lerp(
       startX,
@@ -184,9 +191,10 @@ const PortfolioGallery = () => {
         {images.map((img, i) => {
           const isMobile = width < 5;
           const isTablet = width >= 5 && width < 8;
-          const imageWidth = isMobile ? 1.6 : isTablet ? 1.7 : 1.9;
-          const imageHeight = isMobile ? 2.2 : isTablet ? 2.3 : 2.6; // same height across all images; smaller on tablet
-          const spacing = imageWidth + 0.5;
+          // Increase mobile image size significantly as requested
+          const imageWidth = isMobile ? 2.8 : isTablet ? 1.7 : 1.9;
+          const imageHeight = isMobile ? 3.8 : isTablet ? 2.3 : 2.6; // same height across all images; smaller on tablet
+          const spacing = imageWidth + (isMobile ? 0.3 : 0.5);
           const x = i * spacing;
           const z = (i % 2 === 0 ? -0.1 : 0.1) + i * 0.01;
           return (

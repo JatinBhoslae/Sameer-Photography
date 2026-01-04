@@ -74,18 +74,18 @@ const Scene = () => {
         />
       </Float>
 
-      {/* Portfolio Section - Position: -8 (Gallery) */}
-      <group position={[0, -8, 0]}>
-        <PortfolioGallery />
+      {/* Portfolio Section - Position: -7.5 (Gallery) - Moved down to avoid text overlap */}
+      <group position={[0, isMobile ? -7.5 : -8, 0]}>
+        <PortfolioGallery isMobile={isMobile} />
       </group>
 
       {/* About Section - Position: -16 (Cylinder/Film Roll) */}
       <group
-        position={[isMobile ? 0 : 3, -16, 0]}
+        position={[isMobile ? 0 : 3, isMobile ? -16 : -16, 0]}
         rotation={[0, -0.5, 0]}
         scale={isSmallMobile ? 0.6 : isMobile ? 0.7 : 0.9}
       >
-        <AboutScene />
+        <AboutScene isMobile={isMobile} />
       </group>
 
       {/* Packages Section - Position: -24 (No 3D model - UI only) */}

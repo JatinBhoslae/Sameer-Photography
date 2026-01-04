@@ -2,7 +2,7 @@ import React, { useState, Suspense, useEffect, lazy } from "react";
 import { Canvas } from "@react-three/fiber";
 import { ScrollControls, Scroll } from "@react-three/drei";
 import LoadingScreen from "./components/ui/LoadingScreen";
-import CustomCursor from "./components/ui/CustomCursor";
+import FloatingControls from "./components/ui/FloatingControls";
 
 // Lazy load heavy 3D components
 const Scene = lazy(() => import("./components/3d/Experience"));
@@ -25,8 +25,6 @@ function App() {
 
   return (
     <>
-      <CustomCursor />
-
       {/* Loading Screen handles the start interaction */}
       <LoadingScreen started={started} onStarted={() => setStarted(true)} />
 
@@ -45,7 +43,7 @@ function App() {
         >
           <Suspense fallback={null}>
             <ScrollControls
-              pages={isMobile ? 9 : isTablet ? 8 : 7}
+              pages={isMobile ? 10 : isTablet ? 8 : 7}
               damping={0.3}
             >
               <Scene />
@@ -60,15 +58,8 @@ function App() {
         </Canvas>
       </div>
 
-      {/* Ambient Sound (Optional - requires user interaction first, which LoadingScreen button provides) */}
-      {started && (
-        <audio loop autoPlay>
-          <source
-            src="https://assets.mixkit.co/active_storage/sfx/2432/2432-preview.mp3"
-            type="audio/mp3"
-          />
-        </audio>
-      )}
+      {/* Floating Controls (Sound + Scroll Top) */}
+      <FloatingControls started={started} />
     </>
   );
 }

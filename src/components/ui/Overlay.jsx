@@ -143,17 +143,22 @@ const Overlay = () => {
   }, []);
 
   useEffect(() => {
-    if (!isDesktop) {
-      setIsPortfolioLocked(false);
-      lockSnapCompleteRef.current = false;
-      setPortfolioProgress(0);
-    }
+    // Mobile-specific cleanup or initialization if needed
   }, [isDesktop]);
 
+  const isLockedRef = useRef(false);
+
   useEffect(() => {
-    if (!isDesktop) return;
+    // Sync ref with state for event handlers
+    isLockedRef.current = isPortfolioLocked;
+  }, [isPortfolioLocked]);
+
+  useEffect(() => {
+    // Only lock if we are on desktop or mobile - logic applies to both now
+    // if (!isDesktop) return;
+
     const handleWheel = (e) => {
-      if (!isPortfolioLocked) return;
+      if (!isLockedRef.current) return;
 
       // When locked in portfolio, prevent default scroll
       e.preventDefault();
@@ -197,20 +202,80 @@ const Overlay = () => {
       });
     };
 
+    // Touch handling for mobile
+    let touchStart = 0;
+
+    const handleTouchStart = (e) => {
+      if (!isLockedRef.current) return;
+      touchStart = e.touches[0].clientY;
+    };
+
+    const handleTouchMove = (e) => {
+      if (!isLockedRef.current) return;
+
+      // Prevent default scroll
+      if (e.cancelable) e.preventDefault();
+      e.stopPropagation();
+
+      const touchY = e.touches[0].clientY;
+      const deltaY = touchStart - touchY;
+      touchStart = touchY;
+
+      // Ignore small movements
+      if (Math.abs(deltaY) < 1) return;
+
+      setPortfolioProgress((prev) => {
+        // Touch sensitivity
+        const delta = deltaY > 0 ? 0.015 : -0.015;
+        const newProgress = Math.max(0, Math.min(1, prev + delta));
+
+        // Unlock logic
+        if (
+          (newProgress >= 0.99 && deltaY > 0) ||
+          (newProgress <= 0.01 && deltaY < 0)
+        ) {
+          // Immediate unlock
+          setIsPortfolioLocked(false);
+          lockSnapCompleteRef.current = false;
+
+          requestAnimationFrame(() => {
+            if (scroll.el) {
+              if (deltaY > 0) {
+                scroll.el.scrollTop = window.innerHeight * 2; // Jump to next section
+              } else {
+                scroll.el.scrollTop = window.innerHeight * 0.5; // Jump to prev section
+              }
+            }
+          });
+        }
+        return newProgress;
+      });
+    };
+
     const scrollEl = scroll.el;
-    if (scrollEl && isPortfolioLocked) {
+    if (scrollEl) {
       scrollEl.addEventListener("wheel", handleWheel, { passive: false });
+      scrollEl.addEventListener("touchstart", handleTouchStart, {
+        passive: false,
+      });
+      scrollEl.addEventListener("touchmove", handleTouchMove, {
+        passive: false,
+      });
     }
 
     return () => {
       if (scrollEl) {
         scrollEl.removeEventListener("wheel", handleWheel);
+        scrollEl.removeEventListener("touchstart", handleTouchStart);
+        scrollEl.removeEventListener("touchmove", handleTouchMove);
       }
     };
-  }, [isPortfolioLocked, scroll, isDesktop]);
+  }, [scroll]); // Only depend on scroll, NOT on isPortfolioLocked or isDesktop
 
   useEffect(() => {
-    if (!isDesktop) return;
+    // Enable locking for both desktop and mobile
+    // if (!isDesktop) return;
+
     // Check if we've reached the portfolio section
     const checkScroll = () => {
       const scrollTop = scroll.el?.scrollTop || 0;
@@ -312,8 +377,8 @@ const Overlay = () => {
       </Section>
 
       {/* Portfolio Section - Page 1 */}
-      <Section className="items-start justify-start pt-8 md:pt-12 px-6 md:px-12 relative">
-        <div className="mb-8 md:mb-12 relative z-30 bg-dark/80 backdrop-blur-sm px-4 py-2 rounded-lg md:bg-transparent md:backdrop-blur-0 md:px-0 md:py-0 md:rounded-none">
+      <Section className="items-start justify-start pt-8 md:pt-12 px-6 md:px-12 relative !h-[200svh] md:!h-[100svh]">
+        <div className="sticky top-24 md:static mb-8 md:mb-12 relative z-30 bg-dark/80 backdrop-blur-sm px-4 py-2 rounded-lg md:bg-transparent md:backdrop-blur-0 md:px-0 md:py-0 md:rounded-none">
           <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif text-white mb-4 md:mb-6 text-left">
             Selected <span className="text-gold">Works</span>
           </h2>
@@ -322,8 +387,9 @@ const Overlay = () => {
             Weddings, portraits, and stories told through the lens.
           </p>
         </div>
-        {/* Pass locked portfolio progress to 3D scene via custom event (desktop only) */}
-        {isDesktop && isPortfolioLocked && (
+
+        {/* Pass locked portfolio progress to 3D scene via custom event (desktop & mobile) */}
+        {isPortfolioLocked && (
           <div
             className="hidden"
             data-portfolio-progress={portfolioProgress}
