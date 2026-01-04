@@ -128,217 +128,167 @@ const ContactForm = () => {
   );
 };
 
-const Overlay = () => {
-  const scroll = useScroll();
-  const [isPortfolioLocked, setIsPortfolioLocked] = useState(false);
-  const [portfolioProgress, setPortfolioProgress] = useState(0);
-  const lockSnapCompleteRef = useRef(false);
-  const [isDesktop, setIsDesktop] = useState(false);
+const SELECTED_WORKS = [
+  {
+    id: "featured-1",
+    title: "Royal Marriage",
+    location: "Udaipur, Rajasthan",
+    year: "2025",
+    src: "/portfolio/wedding-1.jpg",
+    alt: "Bride and groom in a royal palace courtyard at sunset.",
+    galleryCategory: "marriage",
+    galleryIndex: 0,
+  },
+  {
+    id: "featured-2",
+    title: "Candid Laughter",
+    location: "Mumbai, India",
+    year: "2024",
+    src: "/portfolio/wedding-2.jpg",
+    alt: "Couple laughing with friends during an outdoor celebration.",
+    galleryCategory: "candid",
+    galleryIndex: 0,
+  },
+  {
+    id: "featured-3",
+    title: "Haldi Rituals",
+    location: "Jaipur, India",
+    year: "2023",
+    src: "/portfolio/wedding-3.jpg",
+    alt: "Close-up of haldi being applied amidst bright yellow decor.",
+    galleryCategory: "haldi",
+    galleryIndex: 0,
+  },
+  {
+    id: "featured-4",
+    title: "Golden Hour Vows",
+    location: "Goa, India",
+    year: "2024",
+    src: "/portfolio/wedding-4.jpg",
+    alt: "Silhouetted couple exchanging vows during sunset by the sea.",
+    galleryCategory: "marriage",
+    galleryIndex: 1,
+  },
+  {
+    id: "featured-5",
+    title: "After-Party",
+    location: "Pune, India",
+    year: "2023",
+    src: "/portfolio/wedding-5.jpg",
+    alt: "Guests dancing under moody, cinematic lighting.",
+    galleryCategory: "celebration",
+    galleryIndex: 0,
+  },
+  {
+    id: "featured-6",
+    title: "Timeless Portrait",
+    location: "Hyderabad, India",
+    year: "2022",
+    src: "/portfolio/wedding-6.jpg",
+    alt: "Elegant bridal portrait with soft studio lighting.",
+    galleryCategory: "candid",
+    galleryIndex: 1,
+  },
+];
+
+const SelectedWorkCard = ({ work, index }) => {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+
+  const openInGallery = () => {
+    if (work.galleryCategory) {
+      window.location.hash = `#gallery/${work.galleryCategory}@${work.galleryIndex ?? 0}`;
+    }
+  };
 
   useEffect(() => {
-    const check = () => setIsDesktop(window.innerWidth >= 1024);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+        }
+      },
+      {
+        threshold: 0.35,
+      }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
-    // Mobile-specific cleanup or initialization if needed
-  }, [isDesktop]);
+  const alignmentClass = index % 2 === 0 ? "md:pr-10" : "md:pl-10";
 
-  const isLockedRef = useRef(false);
+  return (
+    <article
+      ref={ref}
+      className={`group relative flex flex-col gap-4 transform-gpu transition-all duration-[900ms] ease-[cubic-bezier(0.22,0.61,0.36,1)] ${
+        visible
+          ? "opacity-100 translate-y-0 scale-100"
+          : "opacity-0 translate-y-10 scale-[0.97]"
+      } ${alignmentClass}`}
+    >
+      {/* Image without heavy outer frame, larger and cleaner */}
+      <div className="relative w-full overflow-hidden rounded-3xl">
+        <button
+          type="button"
+          onClick={openInGallery}
+          className="w-full max-h-[26rem] sm:max-h-[30rem] md:max-h-[32rem] bg-black flex items-center justify-center focus:outline-none"
+        >
+          <img
+            src={work.src}
+            alt={work.alt}
+            loading="lazy"
+            decoding="async"
+            className="w-full h-full object-contain transform-gpu transition-transform duration-[900ms] ease-[cubic-bezier(0.22,0.61,0.36,1)] group-hover:scale-105"
+          />
+        </button>
 
-  useEffect(() => {
-    // Sync ref with state for event handlers
-    isLockedRef.current = isPortfolioLocked;
-  }, [isPortfolioLocked]);
+        {/* Hover overlay with fullscreen button */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="absolute inset-x-0 bottom-4 flex justify-end px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <button
+            type="button"
+            onClick={openInGallery}
+            className="px-4 py-2 bg-dark/80 border border-gold text-gold text-[11px] sm:text-xs uppercase tracking-[0.18em] hover:bg-gold hover:text-dark transition-all duration-300"
+          >
+            View Fullscreen
+          </button>
+        </div>
+      </div>
 
-  useEffect(() => {
-    // Only lock if we are on desktop or mobile - logic applies to both now
-    // if (!isDesktop) return;
+      <div className="flex flex-col gap-1 text-left">
+        <span className="text-[10px] uppercase tracking-[0.24em] text-gold/70">
+          Selected Work {String(index + 1).padStart(2, "0")}
+        </span>
+        <h3 className="text-lg sm:text-xl md:text-2xl font-serif">
+          {work.title}
+        </h3>
+        <p className="text-xs sm:text-sm text-gray-400">
+          {work.location}, {work.year}
+        </p>
+      </div>
+    </article>
+  );
+};
 
-    const handleWheel = (e) => {
-      if (!isLockedRef.current) return;
+const SelectedWorksStrip = () => {
+  return (
+    <div className="w-full max-w-6xl mx-auto mt-6 md:mt-10 space-y-8 pointer-events-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-10">
+        {SELECTED_WORKS.map((work, index) => (
+          <SelectedWorkCard key={work.id} work={work} index={index} />
+        ))}
+      </div>
+    </div>
+  );
+};
 
-      // When locked in portfolio, prevent default scroll
-      e.preventDefault();
-      e.stopPropagation();
-
-      // Slow, controlled scroll progress - each scroll wheel event adds small increment
-      // This makes users spend ~4 seconds of scrolling per pair
-      setPortfolioProgress((prev) => {
-        const delta = e.deltaY > 0 ? 0.005 : -0.005; // Very small increment = ~4 sec per 25% (per pair)
-        const newProgress = Math.max(0, Math.min(1, prev + delta));
-
-        // Unlock when reaching end (100%) scrolling down or start (1%) scrolling up
-        if (
-          (newProgress >= 0.99 && e.deltaY > 0) ||
-          (newProgress <= 0.01 && e.deltaY < 0)
-        ) {
-          console.log(
-            "Unlocking portfolio scroll, direction:",
-            e.deltaY > 0 ? "down" : "up"
-          );
-
-          // Immediate unlock
-          setIsPortfolioLocked(false);
-          lockSnapCompleteRef.current = false;
-
-          // Use requestAnimationFrame for smoother transition
-          requestAnimationFrame(() => {
-            if (scroll.el) {
-              if (e.deltaY > 0) {
-                // Scrolling down - go to next section
-                scroll.el.scrollTop = window.innerHeight * 2;
-              } else {
-                // Scrolling up - go to previous section
-                scroll.el.scrollTop = window.innerHeight * 0.5;
-              }
-            }
-          });
-        }
-
-        return newProgress;
-      });
-    };
-
-    // Touch handling for mobile
-    let touchStart = 0;
-
-    const handleTouchStart = (e) => {
-      if (!isLockedRef.current) return;
-      touchStart = e.touches[0].clientY;
-    };
-
-    const handleTouchMove = (e) => {
-      if (!isLockedRef.current) return;
-
-      // Prevent default scroll
-      if (e.cancelable) e.preventDefault();
-      e.stopPropagation();
-
-      const touchY = e.touches[0].clientY;
-      const deltaY = touchStart - touchY;
-      touchStart = touchY;
-
-      // Ignore small movements
-      if (Math.abs(deltaY) < 1) return;
-
-      setPortfolioProgress((prev) => {
-        // Touch sensitivity
-        const delta = deltaY > 0 ? 0.015 : -0.015;
-        const newProgress = Math.max(0, Math.min(1, prev + delta));
-
-        // Unlock logic
-        if (
-          (newProgress >= 0.99 && deltaY > 0) ||
-          (newProgress <= 0.01 && deltaY < 0)
-        ) {
-          // Immediate unlock
-          setIsPortfolioLocked(false);
-          lockSnapCompleteRef.current = false;
-
-          requestAnimationFrame(() => {
-            if (scroll.el) {
-              if (deltaY > 0) {
-                scroll.el.scrollTop = window.innerHeight * 2; // Jump to next section
-              } else {
-                scroll.el.scrollTop = window.innerHeight * 0.5; // Jump to prev section
-              }
-            }
-          });
-        }
-        return newProgress;
-      });
-    };
-
-    const scrollEl = scroll.el;
-    if (scrollEl) {
-      scrollEl.addEventListener("wheel", handleWheel, { passive: false });
-      scrollEl.addEventListener("touchstart", handleTouchStart, {
-        passive: false,
-      });
-      scrollEl.addEventListener("touchmove", handleTouchMove, {
-        passive: false,
-      });
-    }
-
-    return () => {
-      if (scrollEl) {
-        scrollEl.removeEventListener("wheel", handleWheel);
-        scrollEl.removeEventListener("touchstart", handleTouchStart);
-        scrollEl.removeEventListener("touchmove", handleTouchMove);
-      }
-    };
-  }, [scroll]); // Only depend on scroll, NOT on isPortfolioLocked or isDesktop
-
-  useEffect(() => {
-    const body = document.body;
-    if (!body) return;
-    body.style.touchAction = isPortfolioLocked ? "none" : "auto";
-    body.style.overscrollBehaviorY = isPortfolioLocked ? "contain" : "";
-    return () => {
-      body.style.touchAction = "";
-      body.style.overscrollBehaviorY = "";
-    };
-  }, [isPortfolioLocked]);
-
-  useEffect(() => {
-    // Enable locking for both desktop and mobile
-    // if (!isDesktop) return;
-
-    // Check if we've reached the portfolio section
-    const checkScroll = () => {
-      const scrollTop = scroll.el?.scrollTop || 0;
-      const windowHeight = window.innerHeight;
-
-      // Only lock if not already locked or snapping
-      if (isPortfolioLocked || lockSnapCompleteRef.current) return;
-
-      // Detect when entering portfolio zone from either direction
-      // Wider detection range but snap to exact position
-      const isInPortfolioZone =
-        scrollTop >= windowHeight * 0.7 && scrollTop <= windowHeight * 1.3;
-
-      if (isInPortfolioZone) {
-        console.log("Entering portfolio zone at:", scrollTop);
-
-        // Mark that we're snapping to prevent re-triggers
-        lockSnapCompleteRef.current = true;
-
-        // Determine direction
-        const isScrollingDown = scrollTop < windowHeight * 1.15;
-
-        // Smooth snap to exact position where heading is at top
-        if (scroll.el) {
-          scroll.el.scrollTo({
-            top: windowHeight,
-            behavior: "smooth",
-          });
-        }
-
-        // Lock after snap animation completes
-        setTimeout(() => {
-          setIsPortfolioLocked(true);
-          setPortfolioProgress(isScrollingDown ? 0 : 1);
-          console.log(
-            "Portfolio locked at exact position, scroll-based animation ready"
-          );
-        }, 300); // Wait for smooth scroll to complete
-      }
-    };
-
-    const scrollEl = scroll.el;
-    if (scrollEl) {
-      scrollEl.addEventListener("scroll", checkScroll, { passive: true });
-    }
-
-    return () => {
-      if (scrollEl) {
-        scrollEl.removeEventListener("scroll", checkScroll);
-      }
-    };
-  }, [scroll, isPortfolioLocked, isDesktop]);
+const Overlay = () => {
+  const scroll = useScroll();
 
   return (
     <div className="absolute top-0 left-0 w-full pointer-events-none z-50 text-white">
@@ -387,29 +337,37 @@ const Overlay = () => {
         </div>
       </Section>
 
-      {/* Portfolio Section - Page 1 */}
-      <Section className="items-start justify-start pt-8 md:pt-12 px-6 md:px-12 relative !h-[200svh] md:!h-[100svh]">
-        <div className="sticky top-24 md:static mb-8 md:mb-12 relative z-30 bg-dark/80 backdrop-blur-sm px-4 py-2 rounded-lg md:bg-transparent md:backdrop-blur-0 md:px-0 md:py-0 md:rounded-none">
-          <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif text-white mb-4 md:mb-6 text-left">
-            Selected <span className="text-gold">Works</span>
-          </h2>
-          <p className="text-gray-400 text-left max-w-lg text-sm sm:text-base md:text-lg">
-            A showcase of captured moments from the past 5 years. <br />
-            Weddings, portraits, and stories told through the lens.
-          </p>
+      {/* Portfolio / Selected Works Section */}
+      <Section className="items-start justify-start pt-8 md:pt-12 px-6 md:px-12 relative !h-auto min-h-screen">
+        <div className="mb-6 md:mb-10 relative z-30 bg-dark/80 backdrop-blur-sm px-4 py-2 rounded-lg md:bg-transparent md:backdrop-blur-0 md:px-0 md:py-0 md:rounded-none">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+            <div>
+              <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif text-white mb-4 md:mb-6 text-left">
+                Selected <span className="text-gold">Works</span>
+              </h2>
+              <p className="text-gray-400 text-left max-w-xl text-sm sm:text-base md:text-lg">
+                Six flagship stories from across weddings, haldi, candid moments and
+                late-night celebrations.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                // Navigate to primary gallery (marriage); other occasions available there
+                window.location.hash = "#gallery/marriage";
+              }}
+              className="self-start md:self-auto px-6 sm:px-8 py-3 border border-gold text-gold hover:bg-gold hover:text-dark transition-all duration-300 uppercase tracking-widest text-xs sm:text-sm pointer-events-auto"
+            >
+              See All Work
+            </button>
+          </div>
         </div>
 
-        {/* Pass locked portfolio progress to 3D scene via custom event (desktop & mobile) */}
-        {isPortfolioLocked && (
-          <div
-            className="hidden"
-            data-portfolio-progress={portfolioProgress}
-          ></div>
-        )}
+        <SelectedWorksStrip />
       </Section>
 
-      {/* About Section */}
-      <Section className="items-center md:items-start md:pl-20 !h-screen">
+      {/* About Section - now flows clearly below Selected Works */}
+      <Section className="items-center md:items-start md:pl-20 !h-auto min-h-screen pt-16 md:pt-20">
         <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif text-white mb-6 text-center md:text-left">
           The <span className="text-gold">Artist</span>
         </h2>
@@ -639,3 +597,5 @@ const Overlay = () => {
 };
 
 export default Overlay;
+
+

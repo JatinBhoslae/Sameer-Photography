@@ -31,7 +31,18 @@ function App() {
   }, []);
 
   const isGalleryRoute = routeHash.startsWith("#gallery/");
-  const category = isGalleryRoute ? routeHash.replace("#gallery/", "") : "";
+  let category = "";
+  let initialIndex = null;
+
+  if (isGalleryRoute) {
+    const raw = routeHash.replace("#gallery/", "");
+    const [cat, indexStr] = raw.split("@");
+    category = cat || "";
+    const parsed = parseInt(indexStr, 10);
+    if (!Number.isNaN(parsed)) {
+      initialIndex = parsed;
+    }
+  }
 
   return (
     <>
@@ -39,7 +50,7 @@ function App() {
 
       {isGalleryRoute ? (
         <Suspense fallback={null}>
-          <GalleryPage category={category} />
+          <GalleryPage category={category} initialIndex={initialIndex} />
         </Suspense>
       ) : (
         <div

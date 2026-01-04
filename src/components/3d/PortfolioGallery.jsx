@@ -106,20 +106,13 @@ const SeeAllButton = ({ progressMapped }) => {
   useFrame(() => {
     if (!buttonRef.current) return;
 
-    const startX = 10;
-    const centerX = 0;
-    const visibleProgress = Math.max(0, (progressMapped - 0.85) / 0.15);
+    // Always visible, centered button; only hover affects scale
+    buttonRef.current.position.x = 0;
+    buttonRef.current.visible = true;
 
-    buttonRef.current.position.x = THREE.MathUtils.lerp(
-      startX,
-      centerX,
-      visibleProgress
-    );
-    buttonRef.current.visible = progressMapped > 0.85;
-
-    const scale = (hovered ? 1.1 : 1) * Math.min(1, visibleProgress * 2);
-    buttonRef.current.scale.x = scale;
-    buttonRef.current.scale.y = scale;
+    const baseScale = hovered ? 1.1 : 1;
+    buttonRef.current.scale.x = baseScale;
+    buttonRef.current.scale.y = baseScale;
   });
 
   return (
@@ -199,22 +192,8 @@ const PortfolioGallery = () => {
   useFrame(() => {
     if (!ribbonGroupRef.current) return;
 
-    const isMobile = width < 5;
-    const isTablet = width >= 5 && width < 8;
-
-    // MATCHING CONSTANTS WITH RENDER LOGIC
-    const imageWidth = isMobile ? 2.8 : isTablet ? 1.7 : 1.9;
-    const spacing = imageWidth + (isMobile ? 0.3 : 0.5);
-    const lastIndex = images.length - 1;
-
-    // Starting slightly off-screen to the right, ending when last image centers
-    const startX = isMobile ? 6 : 12;
-    const endX = -lastIndex * spacing;
-    ribbonGroupRef.current.position.x = THREE.MathUtils.lerp(
-      startX,
-      endX,
-      progressMapped
-    );
+    // Disable horizontal scroll animation; keep ribbon centered/stable
+    ribbonGroupRef.current.position.x = 0;
   });
 
   return (

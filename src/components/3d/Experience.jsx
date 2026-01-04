@@ -10,7 +10,6 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
 import CameraModel from "./CameraModel";
-import PortfolioGallery from "./PortfolioGallery";
 import AboutScene from "./AboutScene";
 import ServicesScene from "./ServicesScene";
 import Overlay from "../ui/Overlay";
@@ -74,11 +73,7 @@ const Scene = () => {
         />
       </Float>
 
-      {/* Portfolio Section - Position: -7.5 (Gallery) - Adjusted desktop to avoid bottom cut */}
-      <group position={[0, isMobile ? -7.5 : -8.2, 0]}>
-        <PortfolioGallery isMobile={isMobile} />
-      </group>
-
+      {/* Portfolio Section - Position: -7.5 (previously 3D gallery ribbon, now removed) */}
       {/* About Section - Position: -16 (Cylinder/Film Roll) */}
       <group
         position={[isMobile ? 0 : 3, isMobile ? -16 : -16, 0]}
