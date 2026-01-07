@@ -528,6 +528,17 @@ const Overlay = () => {
         </div>
       </Section>
 
+      {/* Contact Section */}
+      <Section className="flex-col md:flex-row justify-between items-center max-w-6xl mx-auto w-full gap-8 md:gap-12 !h-auto min-h-screen py-16 md:py-20 px-6 md:px-8">
+        <div className="w-full md:w-1/2 text-center md:text-left mb-4 md:mb-0">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-serif text-white mb-4 md:mb-6">
+            Let's Create <br />
+            <span className="text-gold">Magic</span>
+          </h2>
+        </div>
+        <ContactForm />
+      </Section>
+
       {/* Testimonials (Optional extra section) */}
       <Section className="!h-auto min-h-screen py-16 md:py-20 px-6 md:px-8">
         <div className="text-center max-w-4xl mx-auto">
@@ -542,17 +553,6 @@ const Overlay = () => {
             - Destin Sparks
           </p>
         </div>
-      </Section>
-
-      {/* Contact Section */}
-      <Section className="flex-col md:flex-row justify-between items-center max-w-6xl mx-auto w-full gap-8 md:gap-12 !h-auto min-h-screen py-16 md:py-20 px-6 md:px-8">
-        <div className="w-full md:w-1/2 text-center md:text-left mb-4 md:mb-0">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-serif text-white mb-4 md:mb-6">
-            Let's Create <br />
-            <span className="text-gold">Magic</span>
-          </h2>
-        </div>
-        <ContactForm />
       </Section>
 
       {/* Footer */}
@@ -597,5 +597,4 @@ const Overlay = () => {
 };
 
 export default Overlay;
-
-
+export { ContactForm };

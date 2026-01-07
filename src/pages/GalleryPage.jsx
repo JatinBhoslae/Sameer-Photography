@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 
 // Static gallery data kept JSON-like for future CMS mapping
-const GALLERY_DATA = {
+const GALLERY_DATA = {
   marriage: {
     key: "marriage",
     title: "Marriage",
@@ -130,11 +130,53 @@ const resolveCategoryKey = (rawCategory) => {
   }
 };
 
-const GalleryPage = ({ category }) => {
-  const [activeIndex, setActiveIndex] = useState(null);
-
+const GalleryPage = ({ category, initialIndex }) => {
   const resolvedKey = useMemo(() => resolveCategoryKey(category), [category]);
   const meta = GALLERY_DATA[resolvedKey];
+
+  const safeInitialIndex =
+    typeof initialIndex === "number" &&
+    meta &&
+    Array.isArray(meta.images) &&
+    initialIndex >= 0 &&
+    initialIndex < meta.images.length
+      ? initialIndex
+      : null;
+
+  const [activeIndex, setActiveIndex] = useState(safeInitialIndex);
+
+  const touchStartX = useRef(null);
+  const touchStartY = useRef(null);
+
+  const handleTouchStart = (e) => {
+    if (!e.touches || e.touches.length !== 1) return;
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null || touchStartY.current === null) return;
+    const touch = e.changedTouches && e.changedTouches[0];
+    if (!touch) return;
+
+    const dx = touch.clientX - touchStartX.current;
+    const dy = touch.clientY - touchStartY.current;
+
+    const absDx = Math.abs(dx);
+    const absDy = Math.abs(dy);
+    const threshold = 50; // px
+
+    if (absDx > threshold && absDx > absDy) {
+      if (dx < 0) {
+        goNext();
+      } else {
+        goPrev();
+      }
+    }
+
+    touchStartX.current = null;
+    touchStartY.current = null;
+  };
 
   const handleBackHome = () => {
     // Reset hash so App switches back to the main 3D experience
@@ -261,6 +303,7 @@ const GalleryPage = ({ category }) => {
             </button>
           ))}
         </section>
+
       </div>
 
       {/* Lightbox modal */}
@@ -278,7 +321,7 @@ const GalleryPage = ({ category }) => {
             className="absolute top-4 right-4 text-white/80 hover:text-white text-2xl cursor-pointer"
             aria-label="Close gallery"
           >
-             d7
+            ×
           </button>
 
           <button
@@ -290,7 +333,7 @@ const GalleryPage = ({ category }) => {
             className="hidden sm:flex items-center justify-center absolute left-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white text-3xl cursor-pointer"
             aria-label="Previous image"
           >
-             ab
+            ‹
           </button>
 
           <button
@@ -302,12 +345,14 @@ const GalleryPage = ({ category }) => {
             className="hidden sm:flex items-center justify-center absolute right-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white text-3xl cursor-pointer"
             aria-label="Next image"
           >
-             bb
+            ›
           </button>
 
           <div
             className="max-w-4xl w-full max-h-[80vh] flex flex-col gap-3"
             onClick={(e) => e.stopPropagation()}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
           >
             <div className="relative w-full max-h-[70vh] flex items-center justify-center overflow-hidden rounded-2xl">
               <img

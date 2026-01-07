@@ -68,7 +68,7 @@ function App() {
           >
             <Suspense fallback={null}>
               <ScrollControls
-                pages={isMobile ? 10 : isTablet ? 8 : 7}
+                pages={isMobile ? 10 : isTablet ? 9 : 8}
                 damping={0.3}
               >
                 <Scene />
